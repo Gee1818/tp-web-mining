@@ -2,17 +2,24 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime, timedelta
 from streamlit_calendar import calendar
+from os import listdir
+import re
+
+# Read data
+def find_csv_filenames( path_to_dir, suffix=".csv" ):
+    filenames = listdir(path_to_dir)
+    return [ filename for filename in filenames if filename.endswith( suffix ) ]
 
 # Convert the data to a DataFrame
-df_showcase = pd.read_csv('pelis_showcase.csv')
-df_showcase['Fecha'] = pd.to_datetime(df_showcase['Fecha'])
-df_showcase['Cine'] = 'Showcase'
+datos_cines = []
+filenames = find_csv_filenames("./")
+for filename in filenames:
+    df_cine = pd.read_csv(filename)
+    df_cine['Fecha'] = pd.to_datetime(df_cine['Fecha'])
+    df_cine['Cine'] = re.search(r"_(.*?)\.", filename).group(1)
+    datos_cines.append(df_cine)
 
-df_cinepolis = pd.read_csv('pelis_cinepolis.csv')
-df_cinepolis['Fecha'] = pd.to_datetime(df_cinepolis['Fecha'])
-df_cinepolis['Cine'] = 'Cinépolis'
-
-df = pd.concat([df_showcase, df_cinepolis])
+df = pd.concat(datos_cines)
 
 # Streamlit App Layout
 st.title('Cinema Movie Projections')
@@ -54,8 +61,10 @@ calendar_options = {
     },
     "initialView": "dayGridMonth",
     "resources": [
-        {"id": "Showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
-        {"id": "Cinépolis", "title": "Cinépolis", "eventBorderColor": "#17dd17"},
+        {"id": "showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
+        {"id": "cinepolis", "title": "Cinépolis", "eventBorderColor": "#17dd17"},
+        {"id": "centro", "title": "Cines del Centro", "eventBorderColor": "#dddd17"},
+        {"id": "tipas", "title": "Las Tipas", "eventBorderColor": "#dd1717"},
     ],
 }
 
