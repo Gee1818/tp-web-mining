@@ -4,8 +4,15 @@ from datetime import datetime, timedelta
 from streamlit_calendar import calendar
 
 # Convert the data to a DataFrame
-df = pd.read_csv('pelis_showcase.csv')
-df['Fecha'] = pd.to_datetime(df['Fecha'])
+df_showcase = pd.read_csv('pelis_showcase.csv')
+df_showcase['Fecha'] = pd.to_datetime(df_showcase['Fecha'])
+df_showcase['Cine'] = 'Showcase'
+
+df_cinepolis = pd.read_csv('pelis_cinepolis.csv')
+df_cinepolis['Fecha'] = pd.to_datetime(df_cinepolis['Fecha'])
+df_cinepolis['Cine'] = 'Cinépolis'
+
+df = pd.concat([df_showcase, df_cinepolis])
 
 # Streamlit App Layout
 st.title('Cinema Movie Projections')
@@ -31,7 +38,7 @@ for _, row in filtered_data.iterrows():
     calendar_events.append({
         "title": row["Nombre"],
         "start": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-        "resourceId": "showcase",
+        "resourceId": row["Cine"],
     })
 
 # Show the filtered projections in a calendar-like format
@@ -47,7 +54,8 @@ calendar_options = {
     },
     "initialView": "dayGridMonth",
     "resources": [
-        {"id": "showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
+        {"id": "Showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
+        {"id": "Cinépolis", "title": "Cinépolis", "eventBorderColor": "#17dd17"},
     ],
 }
 

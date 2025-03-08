@@ -5,7 +5,7 @@
 #  1. Acceder a la pagina
 #  2. Cerrar el anuncio emergente
 #  3. Obtener el catalogo para el cine de Rosario
-#  4. Para toda pelicula "no anticipada":
+#  4. Para toda pelicula:
 #      a. Abrir la pagina de la pelicula
 #      b. Obtener el nombre de la pelicula
 #      c. Para cada fecha disponible:
@@ -42,7 +42,7 @@ for (peli in pelis_rosario) {
 
 data <- data.frame(Nombre = NULL, Fecha = NULL, Tipo = NULL, Horario = NULL)
 
-#  4. Para toda pelicula "no anticipada":
+#  4. Para toda pelicula:
 for (url in urls_pelis) {
   #      a. Abrir la pagina de la pelicula
   remDr$navigate(url)
