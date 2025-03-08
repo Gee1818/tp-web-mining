@@ -13,3 +13,5 @@ pelis_tipas$Cine     <- "Las Tipas"
 pelis <- rbind(pelis_showcase, pelis_cinepolis, pelis_centro, pelis_tipas)
 
 pelis %>% pull(Tipo) %>% unique() #%>% length()
+pelis %>% filter(Cine == "Showcase") %>% pull(Tipo) %>% unique()
+# Creo que el formato de Showcase es la que va
