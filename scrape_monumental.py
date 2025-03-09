@@ -15,19 +15,47 @@ driver = webdriver.Firefox(service=service, options=options)
 
 URL = "https://www.nuevomonumental.com/"
 
+df_nombre = []
+df_fecha = []
+df_tipo = []
+df_horario = []
+
 driver.get(URL)
 
-cartelera = driver.find_element(By.ID, "listaCartelera")
+time.sleep(5)
 
-peliculas = cartelera.find_elements(By.CLASS_NAME, "col-md-7")
+#cartelera = driver.find_element(By.ID, "listaCartelera")
 
-# titulos = []
+peliculas = driver.find_elements(By.CLASS_NAME, "movie")
 
-# for pelicula in peliculas:
-#     titulo = pelicula.find_element(By.CLASS_NAME_NAME, "movie_title")
-#     titulos.append(titulo.text.strip())
+fechas = None
+
+tipos = None
+
+print(len(peliculas))
+
+for pelicula in peliculas:
+    print(50*"-")
+    
+    nombre = pelicula.find_element(By.CLASS_NAME, "movie__title").text.strip()
+
+    horarios = pelicula.find_elements(By.CLASS_NAME, "time-select__item")
+
+    for _ in horarios:
+
+        horario = _.text.strip()
+
+        tipo = "subtitulada"
+
+        try:
+            # Try to find a <span> inside the <li>
+            span_element = _.find_element(By.TAG_NAME, "span")
+            
+        except:
+            # If no <span> is found, print the time normally
+            tipo = "doblada"
+
+        print(f"Nombre: {nombre} - Horario: {horario} - Tipo: {tipo}")
 
 
 driver.quit()
-
-peliculas
