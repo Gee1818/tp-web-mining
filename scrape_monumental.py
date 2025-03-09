@@ -4,6 +4,8 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 import time
+import pandas as pd
+from datetime import datetime
 
 # Set up Firefox options
 options = Options()
@@ -15,47 +17,83 @@ driver = webdriver.Firefox(service=service, options=options)
 
 URL = "https://www.nuevomonumental.com/"
 
-df_nombre = []
-df_fecha = []
-df_tipo = []
-df_horario = []
+df = pd.DataFrame(columns=["Nombre", "Fecha","Tipo", "Horario"])
+
+# Asumo que el año actual es el año en el que se corre el script
+year = datetime.now().year
+
+# Diccionario para convertir nombres de meses a números
+meses_dict = {
+    "Enero": 1,
+    "Febrero": 2,
+    "Marzo": 3,
+    "Abril": 4,
+    "Mayo": 5,
+    "Junio": 6,
+    "Julio": 7,
+    "Agosto": 8,
+    "Septiembre": 9,
+    "Octubre": 10,
+    "Noviembre": 11,
+    "Diciembre": 12
+}
 
 driver.get(URL)
 
 time.sleep(5)
 
-#cartelera = driver.find_element(By.ID, "listaCartelera")
+# Find buttons for dates
 
-peliculas = driver.find_elements(By.CLASS_NAME, "movie")
+fechas = driver.find_elements(By.CLASS_NAME, "btnFiltroFecha")
 
-fechas = None
+i = 1
 
-tipos = None
+# Busco las primeras 7 fechas
+for fecha_btn in fechas[:7]:
 
-print(len(peliculas))
+    print(f"Buscando pelis para la fecha {i}/7")
 
-for pelicula in peliculas:
-    print(50*"-")
-    
-    nombre = pelicula.find_element(By.CLASS_NAME, "movie__title").text.strip()
+    fecha_btn.click()
+    time.sleep(5)
 
-    horarios = pelicula.find_elements(By.CLASS_NAME, "time-select__item")
+    dia = fecha_btn.find_element(By.CLASS_NAME, "fecha-numero-text").text.strip()
+    mes = fecha_btn.find_element(By.CLASS_NAME, "fecha-mes").text.strip()
 
-    for _ in horarios:
+    mes_num = meses_dict[mes]
 
-        horario = _.text.strip()
+    fecha = datetime(year, mes_num, int(dia))
 
-        tipo = "subtitulada"
+    # Find the movies
 
-        try:
-            # Try to find a <span> inside the <li>
-            span_element = _.find_element(By.TAG_NAME, "span")
-            
-        except:
-            # If no <span> is found, print the time normally
-            tipo = "doblada"
+    peliculas = driver.find_elements(By.CLASS_NAME, "movie")
 
-        print(f"Nombre: {nombre} - Horario: {horario} - Tipo: {tipo}")
+    for pelicula in peliculas:
+        
+        nombre = pelicula.find_element(By.CLASS_NAME, "movie__title").text.strip()
 
+        horarios = pelicula.find_elements(By.CLASS_NAME, "time-select__item")
+
+        for _ in horarios:
+
+            horario = _.text.strip()
+
+            tipo = "subtitulada"
+
+            try:
+                # Try to find a <span> inside the <li>
+                span_element = _.find_element(By.TAG_NAME, "span")
+                
+            except:
+                # If no <span> is found, print the time normally
+                tipo = "doblada"
+
+            #print(f"Nombre: {nombre} - Horario: {horario} - Tipo: {tipo}")
+            new_row = {"Nombre": nombre, "Fecha": fecha, "Tipo": tipo, "Horario": horario}
+            df.loc[len(df)] = new_row
+
+    i += 1
 
 driver.quit()
+
+df.to_csv("pelis_monumental.csv")
+print("Scraping finalizado")
