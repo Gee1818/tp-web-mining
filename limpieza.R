@@ -77,14 +77,18 @@ pelis_monumental$Cine <- "Monumental"
 pelis_cinemark$Cine   <- "Cinemark Hoyts"
 
 pelis <- rbind(
-  pelis_centro, 
+  pelis_centro,
   pelis_cinemark,
-  pelis_cinepolis, 
-  pelis_monumental, 
-  pelis_showcase, 
-  pelis_tipas, 
+  pelis_cinepolis,
+  pelis_monumental,
+  pelis_showcase,
+  pelis_tipas
 )
 
 pelis %>% pull(Tipo) %>% unique() #%>% length()
 pelis %>% filter(Cine == "Showcase") %>% pull(Tipo) %>% unique()
 # Creo que el formato de Showcase es la que va
+
+
+# Guardar el dataset combinado en un archivo CSV
+write.csv(pelis, "pelis_combinado.csv", row.names = FALSE)
