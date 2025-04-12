@@ -5,21 +5,16 @@ from streamlit_calendar import calendar
 from os import listdir
 import re
 
-# Read data
-def find_csv_filenames( path_to_dir, suffix=".csv" ):
-    filenames = listdir(path_to_dir)
-    return [ filename for filename in filenames if filename.endswith( suffix ) ]
 
-# Convert the data to a DataFrame
-datos_cines = []
-filenames = find_csv_filenames("./")
-for filename in filenames:
-    df_cine = pd.read_csv(filename)
-    df_cine['Fecha'] = pd.to_datetime(df_cine['Fecha'])
-    df_cine['Cine'] = re.search(r"_(.*?)\.", filename).group(1)
-    datos_cines.append(df_cine)
 
-df = pd.concat(datos_cines)
+# Load the combined and cleaned dataset
+file_path = "pelis_combinado_clean.csv"
+df = pd.read_csv(file_path)
+df.reset_index(inplace=True)
+
+# Ensure the 'Fecha' column is in datetime format
+df['Fecha'] = pd.to_datetime(df['Fecha'])
+
 
 # Streamlit App Layout
 st.title('Cinema Movie Projections')
@@ -32,11 +27,11 @@ selected_movie = st.selectbox('Select a Movie', nombres)
 filtered_df = df[df["Nombre"] == selected_movie]
 
 # Dropdown to select projection type (sorted alphabetically)
-projection_types = sorted(filtered_df["Tipo"].unique())
+projection_types = sorted(filtered_df["FormatoImagen"].unique())
 selected_type = st.selectbox("Select Projection Type", projection_types)
 
 # Filter the dataset based on selected movie
-filtered_data = filtered_df[filtered_df["Tipo"] == selected_type]
+filtered_data = filtered_df[filtered_df["FormatoImagen"] == selected_type]
 
 calendar_events = []
 for _, row in filtered_data.iterrows():
