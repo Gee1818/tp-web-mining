@@ -46,12 +46,9 @@ time.sleep(5)
 
 fechas = driver.find_elements(By.CLASS_NAME, "btnFiltroFecha")
 
-i = 1
+for i, fecha_btn in enumerate(fechas):
 
-# Busco las primeras 7 fechas
-for fecha_btn in fechas[:7]:
-
-    print(f"Buscando pelis para la fecha {i}/7")
+    print(f"Buscando pelis para la fecha {i+1}/{len(fechas)}")
 
     fecha_btn.click()
     time.sleep(5)
@@ -64,7 +61,6 @@ for fecha_btn in fechas[:7]:
     fecha = datetime(year, mes_num, int(dia))
 
     # Find the movies
-
     peliculas = driver.find_elements(By.CLASS_NAME, "movie")
 
     for pelicula in peliculas:
@@ -91,9 +87,8 @@ for fecha_btn in fechas[:7]:
             new_row = {"Nombre": nombre, "Fecha": fecha, "Tipo": tipo, "Horario": horario}
             df.loc[len(df)] = new_row
 
-    i += 1
 
 driver.quit()
 
-df.to_csv("pelis_monumental.csv")
+df.to_csv("pelis_monumental.csv", index = False)
 print("Scraping finalizado")

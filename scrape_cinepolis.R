@@ -22,18 +22,15 @@ remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F)
 remDr <- remote_driver$client
 
 #  1. Acceder a la pagina
-remDr$navigate("https://www.cinepolis.com.ar/")
+remDr$navigate("https://www.cinepolis.com.ar/cines/cinepolis-rosario")
 Sys.sleep(5)
 
-#  2. Cerrar el anuncio emergente
+#  2. Cerrar anuncio emergente
 popup <- remDr$findElement(using = "class name", "modal-body")
 btn_cerrar_popup <- popup$findElement("class name", "btn")
 btn_cerrar_popup$click()
 
 #  3. Obtener el catalogo para el cine de Rosario
-cine_ros <- remDr$findElement(using = "xpath", "//select[@id = 'complex_id_select']/option[8]")
-cine_ros$clickElement()
-
 pelis_rosario <- remDr$findElements("css selector", ".featured-movies-grid-view-component > div")
 urls_pelis <- character()
 for (peli in pelis_rosario) {
@@ -65,6 +62,7 @@ for (url in urls_pelis) {
     
     #          III. Para cada tipo de funcion, extraer opciones de horarios
     opciones <- remDr$findElements("css selector", "#collapse-4 > div > div > div")
+    if (length(opciones) == 0) next
     for (i in 1:length(opciones)) {
       tipo <- opciones[[i]]$findChildElement("class name", "movie-showtimes-component-label")$getElementText()[[1]]
       btns_horarios <- opciones[[i]]$findChildElements("css selector", ".movie-showtimes-component-schedule > a")

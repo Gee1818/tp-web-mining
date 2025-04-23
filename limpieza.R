@@ -8,22 +8,22 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 
 # Carga de los archivos csv
 pelis_showcase   <- read.csv('pelis_showcase.csv')
-pelis_centro     <- read.csv('pelis_centro.csv')
+#pelis_centro     <- read.csv('pelis_centro.csv')
 pelis_cinemark   <- read.csv('pelis_cinemark.csv')
 pelis_cinepolis  <- read.csv('pelis_cinepolis.csv')
 pelis_tipas      <- read.csv('pelis_tipas.csv')
-pelis_monumental <- read.csv('pelis_monumental.csv')[, -1]
+pelis_monumental <- read.csv('pelis_monumental.csv')
 
 # Corrijo los formatos de cada dataset segun sea necesario
-pelis_centro <- pelis_centro %>% 
-  mutate(
-    Fecha = ymd(Fecha),
-    FormatoImagen = "2D",
-    FormatoIdioma = case_when(
-      Tipo == "SUB" ~ "Subtitulado", 
-      .default = "Español"
-    )
-  )
+# pelis_centro <- pelis_centro %>% 
+#   mutate(
+#     Fecha = ymd(Fecha),
+#     FormatoImagen = "2D",
+#     FormatoIdioma = case_when(
+#       Tipo == "SUB" ~ "Subtitulado", 
+#       .default = "Español"
+#     )
+#   )
 
 pelis_cinemark <- pelis_cinemark %>% 
   mutate(
@@ -71,13 +71,13 @@ pelis_tipas <- pelis_tipas %>%
 # Agrego una columna con la indicadora 
 pelis_showcase$Cine   <- "Showcase"
 pelis_cinepolis$Cine  <- "Cinépolis"
-pelis_centro$Cine     <- "Cines del Centro"
+#pelis_centro$Cine     <- "Cines del Centro"
 pelis_tipas$Cine      <- "Las Tipas"
 pelis_monumental$Cine <- "Monumental"
 pelis_cinemark$Cine   <- "Cinemark Hoyts"
 
 pelis <- rbind(
-  pelis_centro,
+  #pelis_centro,
   pelis_cinemark,
   pelis_cinepolis,
   pelis_monumental,

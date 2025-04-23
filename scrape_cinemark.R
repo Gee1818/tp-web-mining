@@ -21,8 +21,8 @@ library(wdman)
 library(rlist)
 
 # 0. Cerrar puerto en uso (si lo hubiera)
-remDr$close()
-remote_driver$server$stop()
+#remDr$close()
+#remote_driver$server$stop()
 
 ## 1. Iniciar el servidor de Selenium con GeckoDriver (Firefox)
 remote_driver <- rsDriver(browser = "firefox", chromever = NULL, verbose = F)
