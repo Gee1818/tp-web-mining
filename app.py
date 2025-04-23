@@ -83,7 +83,7 @@ calendar_options = {
         "center": "title",
         "right": "dayGridDay,dayGridWeek,dayGridMonth",
     },
-    "initialView": "dayGridMonth",
+    "initialView": "dayGridWeek",  # Set the default view to weekly
     "resources": [
         {"id": "Showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
         {"id": "Cinépolis", "title": "Cinépolis", "eventBorderColor": "#17dd17"},
