@@ -60,10 +60,10 @@ data <- data.frame(Nombre = NULL, Fecha = NULL, Tipo = NULL, Horario = NULL)
 
 ## 6. Iteracion en la pagina para obtener la informacion deseada 
 # Para cada pelicula
-for (i in 26:length(pelis)) {
+for (i in indice:length(pelis)) {
   # Obtengo el nombre de la pelicula
-  nombre_peli <- pelis[[indice+i-26]]$getElementText()[[1]]
-  remDr$executeScript("arguments[0].click();", list(pelis[[indice+i-26]]))
+  nombre_peli <- pelis[[i]]$getElementText()[[1]]
+  remDr$executeScript("arguments[0].click();", list(pelis[[i]]))
   Sys.sleep(1)
   # Cierro (si existe) el cartel de advertencia de que no hay pelicula en la fecha seleccionada
   popup_advertencia <- remDr$findElement(using = "css selector", "div#ch-popup-confirm > button")
