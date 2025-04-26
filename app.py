@@ -27,91 +27,104 @@ st.markdown(
     button[title="View fullscreen"] {
         visibility: hidden;
     }
+    p, select {
+        font-size: 14pt;
+    }
     </style>
     """,
     unsafe_allow_html=True
 )
-st.image("cinefy_logo.png", width=300)
 
-# Dropdown to select a movie (only display dropdown if more than one movie exists)
-nombres = sorted(df['Nombre'].unique())
-if len(nombres) > 1:
-    selected_movie = st.selectbox('Seleccione una película', nombres)
-else:
-    selected_movie = nombres[0]
-    st.write("Película disponible:", selected_movie)
+# Create two columns
+left_col, right_col = st.columns(2)
 
-# Filter dataset by the selected movie
-filtered_df = df[df["Nombre"] == selected_movie]
+# Add stuff to the left column
+with left_col:
+    st.image("cinefy_logo.png", width=300)
 
-# Projection Type filter (FormatoImagen)
-projection_types = sorted(filtered_df["FormatoImagen"].unique())
-if len(projection_types) > 1:
-    selected_type = st.selectbox("Seleccione tipo de proyección", projection_types)
-else:
-    selected_type = projection_types[0]
-    st.write("Proyección disponible:", selected_type)
+    # Dropdown to select a movie (only display dropdown if more than one movie exists)
+    nombres = sorted(df['Nombre'].unique())
+    if len(nombres) > 1:
+        selected_movie = st.selectbox('Seleccione una película', nombres)
+    else:
+        selected_movie = nombres[0]
+        st.write("Película disponible:", selected_movie)
 
-# Filter the dataset based on the selected projection type
-filtered_data = filtered_df[filtered_df["FormatoImagen"] == selected_type]
+    # Filter dataset by the selected movie
+    df_filter1 = df[df["Nombre"] == selected_movie]
 
-# Language Format filter (FormatoIdioma)
-languages = sorted(filtered_data["FormatoIdioma"].unique())
-if len(languages) > 1:
-    selected_language = st.selectbox("Seleccione formato de lenguaje", languages)
-else:
-    selected_language = languages[0]
-    st.write("Lenguaje disponible:", selected_language)
+    # Projection Type filter (FormatoImagen)
+    projection_types = sorted(df_filter1["FormatoImagen"].unique())
+    if len(projection_types) > 1:
+        selected_type = st.selectbox("Seleccione tipo de proyección", projection_types)
+    else:
+        selected_type = projection_types[0]
+        st.write("Proyección disponible:", selected_type)
 
-# Further filter the dataset based on the selected language format
-filtered_data = filtered_data[filtered_data["FormatoIdioma"] == selected_language]
+    # Filter the dataset based on the selected projection type
+    df_filter2 = df_filter1[df_filter1["FormatoImagen"] == selected_type]
 
-# Cinema filter (Cine)
-cinemas = sorted(filtered_data["Cine"].unique())
-if len(cinemas) > 1:
-    selected_cinema = st.selectbox("Seleccione cine", cinemas)
-else:
-    selected_cinema = cinemas[0]
-    st.write("Cine disponible:", selected_cinema)
+    # Language Format filter (FormatoIdioma)
+    languages = sorted(df_filter2["FormatoIdioma"].unique())
+    if len(languages) > 1:
+        selected_language = st.selectbox("Seleccione formato de lenguaje", languages)
+    else:
+        selected_language = languages[0]
+        st.write("Lenguaje disponible:", selected_language)
 
-# Further filter the dataset based on the selected cinema
-filtered_data = filtered_data[filtered_data["Cine"] == selected_cinema]
+    # Further filter the dataset based on the selected language format
+    df_filter3 = df_filter2[df_filter2["FormatoIdioma"] == selected_language]
 
-# Prepare calendar events from the filtered data
-calendar_events = []
-for _, row in filtered_data.iterrows():
-    # Combine the date and time from 'Fecha' and 'Horario' columns
-    start_datetime = datetime.combine(row["Fecha"], datetime.strptime(row["Horario"], "%H:%M").time())
-    calendar_events.append({
-        "title": row["Cine"],
-        "start": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
-        "resourceId": row["Cine"],
-    })
+    # Cinema filter (Cine)
+    cinemas = sorted(df_filter3["Cine"].unique())
+    checkbox_states = {}
+    with st.expander("Seleccione cine", expanded = True):
+        for cinema in cinemas:
+            checkbox_states[cinema] = st.checkbox(cinema, value = True)
+    selected_cinemas = [cine for cine, selected in checkbox_states.items() if selected]
 
-# Display a subheader with the selected movie
-st.subheader(f'Proyecciones para {selected_movie}')
+    # Filter the DataFrame based on selected cinemas
+    df_filter4 = df_filter3[df_filter3["Cine"].isin(selected_cinemas)]
 
-# Calendar options with pre-defined resource listings for the cinemas
-calendar_options = {
-    "editable": False,
-    "selectable": True,
-    "headerToolbar": {
-        "left": "today prev,next",
-        "center": "title",
-        "right": "dayGridDay,dayGridWeek,dayGridMonth",
-    },
-    "initialView": "dayGridWeek",  # Set the default view to weekly
-    "resources": [
-        {"id": "Showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
-        {"id": "Cinépolis", "title": "Cinépolis", "eventBorderColor": "#17dd17"},
-        {"id": "Centro", "title": "Cines del Centro", "eventBorderColor": "#dddd17"},
-        {"id": "Tipas", "title": "Las Tipas", "eventBorderColor": "#dd1717"},
-    ],
-}
 
-# Render the calendar with a key that ensures proper updates for each filter change
-calendar(
-    events=calendar_events,
-    options=calendar_options,
-    key=f"{selected_movie}_{selected_type}_{selected_language}_{selected_cinema}"
-)
+# Add stuff to the right column
+with right_col:
+    # Prepare calendar events from the filtered data
+    calendar_events = []
+    for _, row in df_filter4.iterrows():
+        # Combine the date and time from 'Fecha' and 'Horario' columns
+        start_datetime = datetime.combine(row["Fecha"], datetime.strptime(row["Horario"], "%H:%M").time())
+        calendar_events.append({
+            "title": row["Cine"],
+            "start": start_datetime.strftime("%Y-%m-%dT%H:%M:%S"),
+            "resourceId": row["Cine"],
+        })
+
+    # Display a subheader with the selected movie
+    st.subheader(f'Proyecciones para {selected_movie}')
+
+    # Calendar options with pre-defined resource listings for the cinemas
+    calendar_options = {
+        "editable": False,
+        "selectable": True,
+        "headerToolbar": {
+            "left": "today prev,next",
+            "center": "title",
+            "right": "dayGridDay,dayGridWeek,dayGridMonth",
+        },
+        "initialView": "dayGridWeek",  # Set the default view to weekly
+        "resources": [
+            {"id": "Showcase", "title": "Showcase", "eventBorderColor": "#1717dd"},
+            {"id": "Cinépolis", "title": "Cinépolis", "eventBorderColor": "#17dd17"},
+            {"id": "Centro", "title": "Cines del Centro", "eventBorderColor": "#dddd17"},
+            {"id": "Tipas", "title": "Las Tipas", "eventBorderColor": "#dd1717"},
+        ],
+    }
+
+    # Render the calendar with a key that ensures proper updates for each filter change
+    calendar(
+        events=calendar_events,
+        options=calendar_options,
+        key=f"{selected_movie}_{selected_type}_{selected_language}_{len(selected_cinemas)}"
+    )
+
