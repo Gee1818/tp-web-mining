@@ -14,24 +14,26 @@ library(rvest)
 library(netstat)
 library(tidyverse)
 
-remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F)
+remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F, phantomver = NULL)
 remDr <- remote_driver$client
 
 #  1. Acceder a la pagina
 remDr$navigate("https://www.cinesdelcentro.com.ar/")
 Sys.sleep(5)
 
-pelis <- remDr$findElements("css selector", "#comp-m7xaua95 > .E6jjcn > .VM7gjN > .Zc7IjY")
+pelis <- remDr$findElements("xpath", "//span[not(descendant::span)
+      and contains(normalize-space(.), 'CLICK AL POSTER PARA VER EL TRAILER Y MÁS INFO')]/ancestor::div[1]
+") # No contiene los divs de las pelis sino uno dentro de ellos, y dsps se buscan los hnos que tienen la data
 
 data <- data.frame(Nombre = NULL, Fecha = NULL, Tipo = NULL, Horario = NULL)
 
 #  2. Para toda pelicula:
 for (peli in pelis) {
   #      a. Obtener el nombre de la pelicula
-  nombre_peli <- peli$findChildElements("css selector", "p")[[2]]$getElementText()[[1]]
+  nombre_peli <- peli$findChildElement("xpath", "preceding-sibling::div[2]")$getElementText()[[1]]
   
   #      b. Para cada horario:
-  texto_horarios <- peli$findChildElements("css selector", "p")[[3]]$getElementText()[[1]]
+  texto_horarios <- peli$findChildElement("xpath", "preceding-sibling::div[1]")$getElementText()[[1]]
   horarios <- unlist(strsplit(texto_horarios, "\n+| / "))
   
   for (horario in horarios) {
@@ -53,5 +55,9 @@ for (peli in pelis) {
     }
   }
 }
+
+remDr$close()
+
+data <- data %>% filter(Nombre != "ROMPER EL CÌRCULO") # Parece que hay una peli fantasma escondida en la web
 
 write.csv(data, "pelis_centro.csv", row.names = F, fileEncoding = "UTF-8")

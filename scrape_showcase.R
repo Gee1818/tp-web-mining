@@ -18,7 +18,7 @@ library(rvest)
 library(netstat)
 library(tidyverse)
 
-remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F)
+remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F, phantomver = NULL)
 remDr <- remote_driver$client
 
 #  1. Acceder a la pagina
@@ -80,6 +80,8 @@ for (url in urls_pelis) {
   }
   
 }
+
+remDr$close()
 
 write.csv(data, "pelis_showcase.csv", row.names = F, fileEncoding = "UTF-8")
 

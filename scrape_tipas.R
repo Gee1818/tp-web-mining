@@ -15,7 +15,7 @@ library(rvest)
 library(netstat)
 library(tidyverse)
 
-remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F)
+remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F, phantomver = NULL)
 remDr <- remote_driver$client
 
 #  1. Acceder a la pagina
@@ -55,7 +55,7 @@ for (i in 1:length(fechas)) {
     #          I. Obtener el nombre y formato
     nombre_peli <- peli$findChildElement("css selector", "h4")$getElementText()[[1]]
     nombre_peli <- sub("(.*?)\\s*(2D|3D|ATMOS).*", "\\1", nombre_peli) # remover 2D, 3D, 4D
-    formato <- peli$findChildElements("css selector", "p")[[7]]$getElementText()[[1]]
+    formato <- peli$findChildElements("css selector", "p")[[8]]$getElementText()[[1]]
     
     #          II. Para cada horario, extraer hora e idioma y grabar
     horarios_spans <- peli$findChildElements("css selector", "span.text-primary.flex")
@@ -70,5 +70,7 @@ for (i in 1:length(fechas)) {
   }
   
 }
+
+remDr$close()
 
 write.csv(data, "pelis_tipas.csv", row.names = F, fileEncoding = "UTF-8")

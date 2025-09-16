@@ -18,7 +18,7 @@ library(rvest)
 library(netstat)
 library(tidyverse)
 
-remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F)
+remote_driver <- rsDriver(browser = "firefox", port = free_port(), verbose = F, phantomver = NULL)
 remDr <- remote_driver$client
 
 #  1. Acceder a la pagina
@@ -31,7 +31,8 @@ btn_cerrar_popup <- popup$findElement("class name", "btn")
 btn_cerrar_popup$click()
 
 #  3. Obtener el catalogo para el cine de Rosario
-pelis_rosario <- remDr$findElements("css selector", ".featured-movies-grid-view-component > div")
+grilla_peliculas <- remDr$findElements("class name", "movie-grid")[[2]]
+pelis_rosario <- grilla_peliculas$findChildElements("xpath", "./div")
 urls_pelis <- character()
 for (peli in pelis_rosario) {
     url_peli <- peli$findChildElement("css selector", "a")$getElementAttribute("href")[[1]]
@@ -74,5 +75,7 @@ for (url in urls_pelis) {
   }
   
 }
+
+remDr$close()
 
 write.csv(data, "pelis_cinepolis.csv", row.names = F, fileEncoding = "UTF-8")
